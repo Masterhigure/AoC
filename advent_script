@@ -1,0 +1,31 @@
+#!/bin/fish
+
+if test "$argv[-1]" = ""
+    set d $(date +%Y/%d)
+else
+    set d $argv[-1]
+end
+
+if test -d $d
+    exit
+end
+
+set -x ADVENT_SESSION_COOKIE MY_SESSION_COOKIE
+
+advent get $d
+if test $status -neq 0
+    echo "Get a new session cookie" 1>&2
+    exit
+end
+
+rm $d/solution.py $d/prompt.md
+
+cp template.rs $d/src.rs
+cd $d
+if test $status -ne 0
+    exit
+end
+cargo init --name advent
+truncate -s -1 input.txt
+echo "" >example_input.txt
+mv src.rs src/main.rs
